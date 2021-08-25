@@ -1,0 +1,116 @@
+name: Docker release image
+
+on:
+  workflow_dispatch:
+
+env:
+  GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
+  GLOBAL_REPO_NAME: repo.danubetech.com:5000
+  GLOBAL_PATH_TO_DOCKERFILE: ./docker/Dockerfile
+
+jobs:
+
+  build-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: danubetech/github-action-log-build-context@v0.1.0
+
+  set-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read_and_set_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Read and set version
+        id: read_and_set_version
+        uses: danubetech/github-action-read-version@main
+        with:
+          framework: node
+
+  create-tag:
+    needs: set-version
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.set-version.outputs.version }}
+    steps:
+      - name: Import Secrets
+        uses: hashicorp/vault-action@v2.3.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
+          caCertificate: ${{ secrets.VAULTCA }}
+          secrets: |
+            ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
+
+      - uses: actions/checkout@master
+
+      - name: Set user data
+        run: |
+          git config --global user.email "admin@danubetech.com"
+          git config --global user.name "Github Workflow"
+
+      - name: Create tag
+        run: git tag -a "${{ env.RELEASE_VERSION }}" -m "[skip ci] Release tag ${{ env.RELEASE_VERSION }}"
+
+      - name: Push tag
+        run: git push origin "${{ env.RELEASE_VERSION }}"
+
+      - name: Slack notification
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,commit,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+
+  publish-image:
+    needs: [validate-pom, set-version, create-tag]
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.set-version.outputs.version }}
+    steps:
+
+      - name: Import Secrets
+        uses: hashicorp/vault-action@v2.3.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
+          caCertificate: ${{ secrets.VAULTCA }}
+          secrets: |
+            ci/data/gh-workflows/dockerhub username | DOCKER_USERNAME ;
+            ci/data/gh-workflows/dockerhub password | DOCKER_PASSWORD ;
+            ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
+
+      - uses: actions/checkout@master
+        with:
+          ref: ${{ env.RELEASE_VERSION }}
+
+      - name: Set SHORT_SHA env variable
+        id: short_sha
+        run: echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
+
+      - name: Build image
+        run: docker build . -f docker/Dockerfile -t "${{ env.GLOBAL_REPO_NAME }}/${{ env.GLOBAL_IMAGE_NAME }}:${{ env.RELEASE_VERSION }}-${{ steps.short_sha.outputs.SHORT_SHA }}"
+
+      - name: Login user to repo
+        run: echo "${{ env.DOCKER_PASSWORD }}" | docker login "${{ env.GLOBAL_REPO_NAME }}" -u "${{ env.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push image
+        run: docker push "${{ env.GLOBAL_REPO_NAME }}/${{ env.GLOBAL_IMAGE_NAME }}:${{ env.RELEASE_VERSION }}-${{ steps.short_sha.outputs.SHORT_SHA }}"
+
+      - name: Slack notification
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,commit,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: Remove release tag
+        if: failure()
+        run: |
+          git tag -d "${{ env.RELEASE_VERSION }}"
+          git push --delete origin "${{ env.RELEASE_VERSION }}"
