@@ -66,7 +66,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
   publish-image:
-    needs: [validate-pom, set-version, create-tag]
+    needs: [set-version, create-tag]
     runs-on: ubuntu-latest
     env:
       RELEASE_VERSION: ${{ needs.set-version.outputs.version }}
