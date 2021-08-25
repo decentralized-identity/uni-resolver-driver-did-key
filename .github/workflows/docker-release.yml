@@ -5,8 +5,7 @@ on:
 
 env:
   GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
-  GLOBAL_REPO_NAME: repo.danubetech.com:5000
-  GLOBAL_PATH_TO_DOCKERFILE: ./docker/Dockerfile
+  GLOBAL_REPO_NAME: docker.io
 
 jobs:
 
