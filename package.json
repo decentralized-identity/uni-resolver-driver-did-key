@@ -14,8 +14,8 @@
   "private": true,
   "dependencies": {
     "@digitalbazaar/did-method-key": "2.0.0",
-    "connect": "3.2.0",
-    "js-yaml": "3.13.1",
-    "oas3-tools": "2.0.2"
+    "connect": "3.7.0",
+    "js-yaml": "4.1.0",
+    "oas3-tools": "2.2.3"
   }
 }
