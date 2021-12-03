@@ -1,6 +1,6 @@
 'use strict';
 
-const didKeyDriver = require('did-method-key').driver();
+const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
 
 /**
  * Resolve a DID or other identifier.
