@@ -1,5 +1,5 @@
 {
-  "name": "universal-resolver-driver",
+  "name": "uni-resolver-driver-did-key",
   "version": "0.2.0",
   "description": "Universal Resolver Driver",
   "main": "index.js",
