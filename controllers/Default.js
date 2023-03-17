@@ -3,12 +3,14 @@
 var utils = require('../utils/writer.js');
 var Default = require('../service/DefaultService');
 
-module.exports.resolve = function resolve (req, res, next, identifier, accept) {
-  Default.resolve(identifier, accept)
-    .then(function (response) {
-      utils.writeJson(res, response);
-    })
-    .catch(function (response) {
-      utils.writeJson(res, response);
-    });
+module.exports.resolve = function resolve (req, res) {
+    const identifier = req.params['identifier'];
+    const accept = req.get('accept');
+    Default.resolve(identifier, accept)
+        .then(function (response) {
+            utils.writeJson(res, response);
+        })
+        .catch(function (response) {
+            utils.writeJson(res, response);
+        });
 };
