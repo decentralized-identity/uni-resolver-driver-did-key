@@ -1,6 +1,6 @@
 ![DIF Logo](https://raw.githubusercontent.com/decentralized-identity/universal-resolver/master/docs/logo-dif.png)
 
-# Universal Resolver Driver: example
+# Universal Resolver Driver: did:key
 
 This is a [Universal Resolver](https://github.com/decentralized-identity/universal-resolver/) driver for **did:key** identifiers.
 
