@@ -1,6 +1,4 @@
-'use strict';
-
-const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
+import { driver } from "@digitalbazaar/did-method-key";
 
 /**
  * Resolve a DID or other identifier.
@@ -9,9 +7,9 @@ const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
  * accept String The requested MIME type of the DID document or DID resolution result. (optional)
  * returns Object
  **/
-exports.resolve = function(identifier,accept) {
+module.exports.resolve = function(identifier,accept) {
   return new Promise(function(resolve, reject) {
-    didKeyDriver.get({did: identifier})
+    driver().get({did: identifier})
     .then(function(didDocument) {
       if (didDocument) {
         resolve(didDocument);

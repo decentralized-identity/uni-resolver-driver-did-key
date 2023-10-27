@@ -1,7 +1,9 @@
 'use strict';
 
-var utils = require('../utils/writer.js');
-var Default = require('../service/DefaultService');
+const utils = require('../utils/writer.js');
+// const Default = require('../service/DefaultService');
+import {resolve as Default} from "../service/DefaultService.js";
+
 
 module.exports.resolve = function resolve (req, res) {
     const identifier = req.params['identifier'];
