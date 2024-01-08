@@ -23,4 +23,4 @@ exports.resolve = function(identifier,accept) {
       resolve({code:500, payload:''+response});
     });
   });
-}
+};

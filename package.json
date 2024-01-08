@@ -2,19 +2,20 @@
   "name": "uni-resolver-driver-did-key",
   "version": "0.4.0",
   "description": "Universal Resolver Driver",
-  "main": "index.js",
+  "main": "index.cjs",
   "scripts": {
     "prestart": "npm install",
-    "start": "node index.js"
+    "start": "node index.cjs"
   },
   "keywords": [
     "swagger"
   ],
   "license": "Unlicense",
   "private": true,
+  "type": "commonjs",
   "dependencies": {
     "@transmute/did-key.js": "0.3.0-unstable.10",
     "@transmute/did-key-bls12381": "0.3.0-unstable.10",
-    "express": "4.18.1"
+    "express": "4.18.2"
   }
 }

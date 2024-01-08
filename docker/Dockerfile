@@ -1,6 +1,6 @@
 # Dockerfile for universalresolver/driver-did-key
 
-FROM node:18.9.0-alpine3.16
+FROM node:20.10.0-alpine3.18
 MAINTAINER Markus Sabadello <markus@danubetech.com>
 
 # build driver-did-key
@@ -14,4 +14,4 @@ RUN npm install
 
 EXPOSE 8080
 
-CMD [ "node", "index.js" ]
+CMD [ "node", "index.cjs" ]
