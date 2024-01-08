@@ -1,6 +1,6 @@
 'use strict';
 
-const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
+const didKey = require('@transmute/did-key.js');
 
 /**
  * Resolve a DID or other identifier.
@@ -11,7 +11,7 @@ const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
  **/
 exports.resolve = function(identifier,accept) {
   return new Promise(function(resolve, reject) {
-    didKeyDriver.get({did: identifier})
+    didKey.resolve(identifier)
     .then(function(didDocument) {
       if (didDocument) {
         resolve(didDocument);

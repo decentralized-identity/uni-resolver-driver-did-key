@@ -13,7 +13,8 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
-    "@digitalbazaar/did-method-key": "2.0.0",
+    "@transmute/did-key.js": "0.3.0-unstable.10",
+    "@transmute/did-key-bls12381": "0.3.0-unstable.10",
     "express": "4.18.1"
   }
 }
