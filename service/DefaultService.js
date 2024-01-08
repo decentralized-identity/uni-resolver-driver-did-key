@@ -14,6 +14,23 @@ exports.resolve = function(identifier,accept) {
     didKey.resolve(identifier)
     .then(function(didDocument) {
       if (didDocument) {
+        const verificationMethods = didDocument['didDocument']['verificationMethod'];
+        console.log("verificationMethods=" + typeof(verificationMethods));
+        for (const i in verificationMethods) {
+          console.log("i=" + i);
+          const verificationMethod = verificationMethods[i];
+          console.log("verificationMethod=" + JSON.stringify(verificationMethod));
+          const publicKeyJwk = verificationMethod ? verificationMethod['publicKeyJwk'] : undefined;
+          const crv = publicKeyJwk ? publicKeyJwk['crv'] : undefined;
+          if (crv === 'BLS12381_G1') {
+            publicKeyJwk['kty'] = 'OKP';
+            publicKeyJwk['crv'] = 'Bls12381G1';
+          }
+          if (crv === 'BLS12381_G2') {
+            publicKeyJwk['kty'] = 'OKP';
+            publicKeyJwk['crv'] = 'Bls12381G2';
+          }
+        }
         resolve(didDocument);
       } else {
         resolve(404);
