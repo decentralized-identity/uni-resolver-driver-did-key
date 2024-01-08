@@ -6,6 +6,7 @@ on:
 env:
   GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
   GLOBAL_REPO_NAME: docker.io
+  RELEASE_VERSION: 0.3.0
 
 jobs:
 
@@ -14,24 +15,8 @@ jobs:
     steps:
       - uses: danubetech/github-action-log-build-context@v0.1.0
 
-  set-version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.read_and_set_version.outputs.version }}
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Read and set version
-        id: read_and_set_version
-        uses: danubetech/github-action-read-version@main
-        with:
-          framework: node
-
   create-tag:
-    needs: set-version
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: ${{ needs.set-version.outputs.version }}
     steps:
       - name: Import Secrets
         uses: hashicorp/vault-action@v2.3.0
@@ -65,10 +50,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
   publish-image:
-    needs: [set-version, create-tag]
+    needs: [create-tag]
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: ${{ needs.set-version.outputs.version }}
     steps:
 
       - name: Import Secrets
@@ -78,8 +61,8 @@ jobs:
           token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
           caCertificate: ${{ secrets.VAULTCA }}
           secrets: |
-            ci/data/gh-workflows/dockerhub username | DOCKER_USERNAME ;
-            ci/data/gh-workflows/dockerhub password | DOCKER_PASSWORD ;
+            ci/data/gh-workflows/${{ env.GLOBAL_REPO_NAME }} username | DOCKER_USERNAME ;
+            ci/data/gh-workflows/${{ env.GLOBAL_REPO_NAME }} password | DOCKER_PASSWORD ;
             ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
 
       - uses: actions/checkout@master
