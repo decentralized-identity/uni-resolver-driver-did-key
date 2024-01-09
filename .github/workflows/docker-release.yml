@@ -6,7 +6,7 @@ on:
 env:
   GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
   GLOBAL_REPO_NAME: docker.io
-  RELEASE_VERSION: 0.3.0
+  RELEASE_VERSION: 0.4.0
 
 jobs:
 
