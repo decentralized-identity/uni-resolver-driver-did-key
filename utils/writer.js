@@ -34,6 +34,8 @@ var writeJson = exports.writeJson = function(response, arg1, arg2) {
   }
   if (code === 200) {
     response.writeHead(code, {'Content-Type': 'application/did+ld+json'});
+  } else if (code) {
+    response.writeHead(code);
   }
   if (typeof payload === 'object') {
     payload = JSON.stringify(payload, null, 2);

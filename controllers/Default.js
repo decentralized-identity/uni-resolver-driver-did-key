@@ -13,8 +13,8 @@ exports.resolve = function resolve (req, res) {
             console.log('result: ' + JSON.stringify(response));
             utils.writeJson(res, response);
         })
-        .catch(function (response) {
-            console.log('error: ' + JSON.stringify(response));
-            utils.writeJson(res, response);
+        .catch(function (error) {
+            console.error(error);
+            utils.writeJson(res, { code:500, payload:'' + error });
         });
 };

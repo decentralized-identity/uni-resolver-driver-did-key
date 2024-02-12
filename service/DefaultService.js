@@ -36,8 +36,9 @@ exports.resolve = function(identifier,accept) {
         resolve(404);
       }
     })
-    .catch(function (response) {
-      resolve({code:500, payload:''+response});
+    .catch(function (error) {
+      console.error(error);
+      resolve({ code:500, payload:'' + error });
     });
   });
 };
