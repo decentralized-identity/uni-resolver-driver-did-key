@@ -9,6 +9,8 @@ WORKDIR /usr/src/app
 COPY . .
 RUN rm -rf node_modules/
 RUN npm install
+RUN find ./ -name "*.js" -type f -exec sed -i -e "s/'did:key:zUC7': bls12381,/'did:key:zUC7': bls12381,'did:key:z3tE': bls12381,/g" {} \;
+RUN find ./ -name "*.ts" -type f -exec sed -i -e "s/'did:key:zUC7': typeof bls12381;/'did:key:zUC7': typeof bls12381;'did:key:z3tE': typeof bls12381;/g" {} \;
 
 # done
 
