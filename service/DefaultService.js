@@ -12,9 +12,10 @@ const didKey = require('@transmute/did-key.js');
 exports.resolve = function(identifier,accept) {
   return new Promise(function(resolve, reject) {
     didKey.resolve(identifier)
-    .then(function(didDocument) {
-      if (didDocument) {
-        const verificationMethods = didDocument['didDocument']['verificationMethod'];
+    .then(function(didResolutionResult) {
+      if (didResolutionResult) {
+        const didDocument = didResolutionResult['didDocument'];
+        const verificationMethods = didDocument['verificationMethod'];
         console.log("verificationMethods=" + typeof(verificationMethods));
         for (const i in verificationMethods) {
           console.log("i=" + i);
