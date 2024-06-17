@@ -4,7 +4,6 @@ dist/
 output/
 .project
 /.settings/
-*.lock
 *.log
 /.idea/
 *.iml
