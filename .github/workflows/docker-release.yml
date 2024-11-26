@@ -2,97 +2,28 @@ name: Docker release image
 
 on:
   workflow_dispatch:
-
-env:
-  GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
-  GLOBAL_REPO_NAME: docker.io
-  RELEASE_VERSION: 0.6.0
+    inputs:
+      release_type:
+        description: 'Major, Minor or Patch release'
+        type: choice
+        required: true
+        default: 'minor'
+        options:
+          - "major"
+          - "minor"
+          - "patch"
 
 jobs:
 
-  build-context:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: danubetech/github-action-log-build-context@v0.1.0
-
-  create-tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Import Secrets
-        uses: hashicorp/vault-action@v2.3.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
-          caCertificate: ${{ secrets.VAULTCA }}
-          secrets: |
-            ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
-
-      - uses: actions/checkout@master
-
-      - name: Set user data
-        run: |
-          git config --global user.email "admin@danubetech.com"
-          git config --global user.name "Github Workflow"
-
-      - name: Create tag
-        run: git tag -a "${{ env.RELEASE_VERSION }}" -m "[skip ci] Release tag ${{ env.RELEASE_VERSION }}"
-
-      - name: Push tag
-        run: git push origin "${{ env.RELEASE_VERSION }}"
-
-      - name: Slack notification
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,commit,action,eventName,ref,workflow
-        env:
-          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-
-  publish-image:
-    needs: [create-tag]
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Import Secrets
-        uses: hashicorp/vault-action@v2.3.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
-          caCertificate: ${{ secrets.VAULTCA }}
-          secrets: |
-            ci/data/gh-workflows/${{ env.GLOBAL_REPO_NAME }} username | DOCKER_USERNAME ;
-            ci/data/gh-workflows/${{ env.GLOBAL_REPO_NAME }} password | DOCKER_PASSWORD ;
-            ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
-
-      - uses: actions/checkout@master
-        with:
-          ref: ${{ env.RELEASE_VERSION }}
-
-      - name: Set SHORT_SHA env variable
-        id: short_sha
-        run: echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
-
-      - name: Build image
-        run: docker build . -f docker/Dockerfile -t "${{ env.GLOBAL_REPO_NAME }}/${{ env.GLOBAL_IMAGE_NAME }}:${{ env.RELEASE_VERSION }}-${{ steps.short_sha.outputs.SHORT_SHA }}"
-
-      - name: Login user to repo
-        run: echo "${{ env.DOCKER_PASSWORD }}" | docker login "${{ env.GLOBAL_REPO_NAME }}" -u "${{ env.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Push image
-        run: docker push "${{ env.GLOBAL_REPO_NAME }}/${{ env.GLOBAL_IMAGE_NAME }}:${{ env.RELEASE_VERSION }}-${{ steps.short_sha.outputs.SHORT_SHA }}"
-
-      - name: Slack notification
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,commit,action,eventName,ref,workflow
-        env:
-          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-
-      - name: Remove release tag
-        if: failure()
-        run: |
-          git tag -d "${{ env.RELEASE_VERSION }}"
-          git push --delete origin "${{ env.RELEASE_VERSION }}"
+  docker-release:
+    uses: danubetech/workflows/.github/workflows/docker-release.yml@1.2.0
+    with:
+      GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
+      GLOBAL_REPO_NAME: docker.io
+      GLOBAL_FRAMEWORK: node
+      PATH_TO_DOCKERFILE: docker/Dockerfile
+    secrets:
+      VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+      CI_SECRET_READER_PERIODIC_TOKEN: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
+      VAULTCA: ${{ secrets.VAULTCA }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -7,49 +7,19 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'docs'
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
-
-env:
-  GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
-  GLOBAL_REPO_NAME: docker.io
 
 jobs:
 
-  build-context:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: danubetech/github-action-log-build-context@v0.1.0
-
-  publish-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Import Secrets
-        uses: hashicorp/vault-action@v2.3.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          token: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
-          caCertificate: ${{ secrets.VAULTCA }}
-          secrets: |
-            ci/data/gh-workflows/dockerhub username | DOCKER_USERNAME ;
-            ci/data/gh-workflows/dockerhub password | DOCKER_PASSWORD ;
-            ci/data/gh-workflows/deployment-status slack-webhook-url | SLACK_WEBHOOK_URL
-
-      - name: Run build image action
-        run: docker build . -f docker/Dockerfile -t "${{ env.GLOBAL_REPO_NAME }}/${{ env.GLOBAL_IMAGE_NAME }}"
-
-      - name: Login user to Dockerhub
-        run: echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Push image to Dockerhub
-        run: docker push "${{ env.GLOBAL_IMAGE_NAME }}"
-
-      - name: Slack notification
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,commit,action,eventName,ref,workflow
-        env:
-          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-        if: failure()
+  docker-release:
+    uses: danubetech/workflows/.github/workflows/docker-latest.yml@1.2.0
+    with:
+      GLOBAL_IMAGE_NAME: universalresolver/driver-did-key
+      GLOBAL_REPO_NAME: docker.io
+      PATH_TO_DOCKERFILE: docker/Dockerfile
+    secrets:
+      VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+      CI_SECRET_READER_PERIODIC_TOKEN: ${{ secrets.CI_SECRET_READER_PERIODIC_TOKEN }}
+      VAULTCA: ${{ secrets.VAULTCA }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
