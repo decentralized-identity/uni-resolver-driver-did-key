@@ -58,7 +58,7 @@ export function resolve(identifier,accept) {
               publicKeyJwk['crv'] = 'Bls12381G2';
             }
           }
-          resolve(didDocument);
+          resolve(didResolutionResult);
         } else {
           resolve(404);
         }
