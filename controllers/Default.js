@@ -1,9 +1,9 @@
 'use strict';
 
-const utils = require('../utils/writer.js');
-const Service = require('../service/DefaultService.js');
+import * as utils from '../utils/writer.js';
+import * as Service from '../service/DefaultService.js';
 
-exports.resolve = function resolve (req, res) {
+export function resolve(req, res) {
     const identifier = req.params['identifier'];
     const accept = req.get('accept');
     console.log('request: ' + identifier);
@@ -17,4 +17,4 @@ exports.resolve = function resolve (req, res) {
             console.error(error);
             utils.writeJson(res, { code:500, payload:'' + error });
         });
-};
+}

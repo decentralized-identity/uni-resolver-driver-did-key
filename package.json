@@ -12,7 +12,7 @@
   ],
   "license": "Unlicense",
   "private": true,
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@transmute/did-key.js": "0.3.0-unstable.10",
     "@transmute/did-key-bls12381": "0.3.0-unstable.10",

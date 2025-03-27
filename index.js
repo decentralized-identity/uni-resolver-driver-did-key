@@ -1,8 +1,8 @@
 'use strict';
 
-const http = require('http');
-const express = require('express');
-const Controller = require('./controllers/Default.js');
+import http from 'http';
+import express from 'express';
+import {resolve} from './controllers/Default.js';
 
 const serverPort = 8080;
 
@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.get('/1.0/identifiers/:identifier', Controller.resolve);
+app.get('/1.0/identifiers/:identifier', resolve);
 
 http.createServer(app).listen(serverPort, function () {
     console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);

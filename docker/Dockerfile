@@ -16,4 +16,4 @@ RUN find ./ -name "*.ts" -type f -exec sed -i -e "s/'did:key:zUC7': typeof bls12
 
 EXPOSE 8080
 
-CMD [ "node", "index.cjs" ]
+CMD [ "node", "index.js" ]
