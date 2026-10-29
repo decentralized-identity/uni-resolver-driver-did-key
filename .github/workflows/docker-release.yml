@@ -3,7 +3,7 @@ name: Docker release image
 on:
   workflow_dispatch:
     inputs:
-      version-core:
+      release_type:
         description: 'Major, Minor or Patch release'
         type: choice
         required: true
